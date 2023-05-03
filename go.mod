@@ -4,13 +4,11 @@ go 1.20
 
 require (
 	github.com/bmc-toolbox/bmclib/v2 v2.0.1-0.20230503085341-8712352acf71
-	github.com/bombsimon/logrusr/v2 v2.0.1
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zerologr v1.2.3
 	github.com/go-yaml/yaml v2.1.0+incompatible
 	github.com/jacobweinstock/registrar v0.4.6
 	github.com/rs/zerolog v1.29.0
-	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 )
@@ -34,4 +32,6 @@ require (
 	github.com/stretchr/testify v1.8.1 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

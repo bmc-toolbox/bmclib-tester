@@ -1,0 +1,23 @@
+---
+devices:
+  - name: a
+    vendor: ASRockRack
+    model: EPYC 7402P
+    bmcHost: 192.168.1.1
+    bmcUser: foo
+    bmcPass: bar
+    ipmiPort: 623
+  - name: b
+    vendor: Dell
+    model: R750
+    bmcHost: 192.168.1.2
+    bmcUser: foo
+    bmcPass: bar
+    ipmiPort: 623
+  - name: c
+    vendor: Supermicro
+    model: SYS-510T-MR
+    bmcHost: 192.168.1.3
+    bmcUser: foo
+    bmcPass: bar
+    ipmiPort: 623

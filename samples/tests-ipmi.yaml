@@ -1,0 +1,12 @@
+---
+# https://github.com/bmc-toolbox/bmclib/blob/main/providers/ipmitool/ipmitool.go
+provider: ipmitool
+protocol: ipmi
+
+# Features are const values defined in https://github.com/bmc-toolbox/bmclib/blob/main/providers/providers.go
+features:
+  - powerstate
+  #- powerset
+  #- userread
+  #- bmcreset
+  #- bootdeviceset

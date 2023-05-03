@@ -1,0 +1,7 @@
+---
+# https://github.com/bmc-toolbox/bmclib/blob/main/providers/redfish/redfish.go#L17
+provider: gofish
+protocol: redfish
+# https://github.com/bmc-toolbox/bmclib/blob/main/providers/redfish/redfish.go#L27
+features:
+  - powerstate

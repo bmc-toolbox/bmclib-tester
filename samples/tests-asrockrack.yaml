@@ -1,0 +1,6 @@
+---
+provider: asrockrack
+protocol: vendorapi
+
+features:
+  - postcoderead

@@ -28,6 +28,10 @@ var (
 	timeout time.Duration
 
 	logLevel string
+
+	// disable limiting the bmclib driver to the protocol defined in the test
+	// causes bmclib to attempt all drivers that it supports.
+	disableDriverFilter bool
 )
 
 // runCmd represents the tester command to test bmclib features
@@ -108,6 +112,7 @@ func run(ctx context.Context) {
 			server.BmcUser,
 			server.BmcPass,
 			server.IpmiPort,
+			disableDriverFilter,
 			logLevel,
 		)
 
@@ -172,6 +177,7 @@ func init() {
 	runCmd.PersistentFlags().StringVar(&testsFile, "tests", "", "YAML file with test configuration")
 	runCmd.PersistentFlags().StringVar(&hardwareFile, "hardware", "", "YAML file with test configuration")
 	runCmd.PersistentFlags().DurationVar(&timeout, "timeout", time.Minute*1, "Abort tests after timeout value")
+	runCmd.PersistentFlags().BoolVarP(&disableDriverFilter, "disable-filter", "", false, "Disable all bmclib protocol driver filters (attempts all drivers)")
 	runCmd.MarkPersistentFlagRequired("tests")
 	runCmd.MarkPersistentFlagRequired("hardware")
 

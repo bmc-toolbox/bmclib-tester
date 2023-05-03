@@ -23,13 +23,14 @@ const (
 
 // Tester runs tests on a host, this struct holds config attributes for tester
 type Tester struct {
-	bmcHost string
-	bmcUser string
-	bmcPass string
-	bmcPort string
-	tests   []*test
-	results []Result
-	logger  logr.Logger
+	bmcHost          string
+	bmcUser          string
+	bmcPass          string
+	bmcPort          string
+	tests            []*test
+	results          []Result
+	disableFiltering bool
+	logger           logr.Logger
 }
 
 // TestFunc should return output if any and an error to indicate test failure.
@@ -42,13 +43,14 @@ type test struct {
 }
 
 // NewTester returns a Tester instance with the parameters configured.
-func NewTester(bmcHost, bmcUser, bmcPass, bmcPort string, logLevel string) *Tester {
+func NewTester(bmcHost, bmcUser, bmcPass, bmcPort string, disableFilter bool, logLevel string) *Tester {
 	return &Tester{
-		bmcHost: bmcHost,
-		bmcUser: bmcUser,
-		bmcPass: bmcPass,
-		bmcPort: bmcPort,
-		logger:  NewLogger(logLevel),
+		bmcHost:          bmcHost,
+		bmcUser:          bmcUser,
+		bmcPass:          bmcPass,
+		bmcPort:          bmcPort,
+		disableFiltering: disableFilter,
+		logger:           NewLogger(logLevel),
 	}
 }
 
@@ -96,8 +98,10 @@ func (t *Tester) Run(ctx context.Context, tests *ConfigTests) {
 	if err := client.Open(ctx); err != nil {
 		for _, test := range t.tests {
 			t.results = append(t.results, Result{
-				Feature: string(test.Feature),
-				Error:   err.Error(),
+				Feature:            string(test.Feature),
+				Protocol:           tests.Protocol,
+				Error:              err.Error(),
+				ProvidersAttempted: client.GetMetadata().ProvidersAttempted,
 			})
 		}
 
@@ -130,10 +134,10 @@ func (t *Tester) Run(ctx context.Context, tests *ConfigTests) {
 			t.logger.V(1).Info("Test successful: ", test.Feature)
 		}
 
+		result.SuccessfulProvider = client.GetMetadata().SuccessfulProvider
 		result.Output = output
-		result.Runtime = time.Duration(time.Since(startTime).Seconds()).String()
+		result.Runtime = time.Duration(time.Since(startTime)).String()
 		t.results = append(t.results, result)
-
 	}
 }
 
@@ -159,11 +163,13 @@ func (t *Tester) newBmclibClient(provider, protocol string, logger logr.Logger) 
 	}
 
 	// init client
-	drivers := registrar.Drivers{}
-
 	client := bmclib.NewClient(t.bmcHost, t.bmcPort, t.bmcUser, t.bmcPass, opts...)
-	drivers = append(drivers, client.Registry.Using(protocol)...)
-	client.Registry.Drivers = drivers
+
+	if !t.disableFiltering {
+		drivers := registrar.Drivers{}
+		drivers = append(drivers, client.Registry.Using(protocol)...)
+		client.Registry.Drivers = drivers
+	}
 
 	return client
 }
@@ -183,12 +189,14 @@ type DeviceResult struct {
 
 // Result is a single test result
 type Result struct {
-	Feature   string
-	Protocol  string
-	Output    string
-	Error     string
-	Succeeded bool
-	Runtime   string
+	Feature            string
+	Protocol           string
+	ProvidersAttempted []string
+	SuccessfulProvider string
+	Output             string
+	Error              string
+	Succeeded          bool
+	Runtime            string
 }
 
 // ResultStore stores test results

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	runtimedebug "runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -134,12 +136,34 @@ func run(ctx context.Context) {
 
 	results := resultStore.Read()
 
-	b, err := json.MarshalIndent(results, "", " ")
+	type pretty struct {
+		BmclibVersion string                  `json:"bmclib_version"`
+		Results       []internal.DeviceResult `json:"results"`
+	}
+
+	out := &pretty{bmclibVersion(), results}
+
+	b, err := json.MarshalIndent(out, "", " ")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println(string(b))
+}
+
+func bmclibVersion() string {
+	buildInfo, ok := runtimedebug.ReadBuildInfo()
+	if !ok {
+		return ""
+	}
+
+	for _, d := range buildInfo.Deps {
+		if strings.Contains(d.Path, "bmclib") {
+			return d.Version
+		}
+	}
+
+	return ""
 }
 
 func init() {

@@ -7,12 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bombsimon/logrusr/v2"
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zerologr"
 	"github.com/jacobweinstock/registrar"
 	"github.com/rs/zerolog"
-	"github.com/sirupsen/logrus"
 
 	"github.com/bmc-toolbox/bmclib/v2"
 	"github.com/bmc-toolbox/bmclib/v2/providers"
@@ -93,7 +91,7 @@ func (t *Tester) Run(ctx context.Context, tests *ConfigTests) {
 		t.logger.Error(err, "tester init error")
 	}
 
-	client := t.newBmclibClient(tests.Provider, tests.Protocol)
+	client := t.newBmclibClient(tests.Provider, tests.Protocol, t.logger)
 
 	if err := client.Open(ctx); err != nil {
 		for _, test := range t.tests {
@@ -112,7 +110,7 @@ func (t *Tester) Run(ctx context.Context, tests *ConfigTests) {
 	defer client.Close(ctxClose)
 
 	for _, test := range t.tests {
-		t.logger.V(2).Info("running test", "feature", test.Feature)
+		t.logger.V(1).Info("running test", "feature", test.Feature)
 
 		startTime := time.Now()
 
@@ -123,17 +121,19 @@ func (t *Tester) Run(ctx context.Context, tests *ConfigTests) {
 
 		output, err := test.TestFunc(ctx, client)
 		if err != nil {
-			t.logger.V(2).Info("Test failed: ", test.Feature)
 			result.Error = err.Error()
+
+			t.logger.V(1).Info("Test failed: ", test.Feature)
 		} else {
 			result.Succeeded = true
+
+			t.logger.V(1).Info("Test successful: ", test.Feature)
 		}
 
 		result.Output = output
 		result.Runtime = time.Duration(time.Since(startTime).Seconds()).String()
 		t.results = append(t.results, result)
 
-		t.logger.V(2).Info("Test successful: ", test.Feature)
 	}
 }
 
@@ -152,12 +152,7 @@ func SupportedProtocols() []string {
 	}
 }
 
-func (t *Tester) newBmclibClient(provider, protocol string) *bmclib.Client {
-	// setup logger
-	l := logrus.New()
-	l.Level = logrus.DebugLevel
-	logger := logrusr.New(l)
-
+func (t *Tester) newBmclibClient(provider, protocol string, logger logr.Logger) *bmclib.Client {
 	opts := []bmclib.Option{
 		bmclib.WithLogger(logger),
 		bmclib.WithPerProviderTimeout(loginTimeout),

@@ -3,7 +3,7 @@ module github.com/bmc-toolbox/bmclib-tester
 go 1.20
 
 require (
-	github.com/bmc-toolbox/bmclib/v2 v2.0.1-0.20230427101248-b5cdfa3ffe02
+	github.com/bmc-toolbox/bmclib/v2 v2.0.1-0.20230503085341-8712352acf71
 	github.com/bombsimon/logrusr/v2 v2.0.1
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zerologr v1.2.3
